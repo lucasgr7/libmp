@@ -8,6 +8,7 @@ from .exceptions import (
     SkyHubException,
     VariavelAmbienteException
 )
+from .extra import cache, clear_cache
 from .models import MercadoLivreToken
 import logging
 import time
@@ -138,7 +139,7 @@ def req_skyhub(url, verb='GET', **kwargs):
         return req_skyhub(url, verb=verb, retry=retry, tempo_espera=tempo_espera)
     raise SkyHubException(response.text)
 
-
+@cache
 def __get_token__():
     url_base = get_env('URL_OC_BASE')
     response = req_opencart(f'{url_base}/token/mercadolivre')
@@ -170,23 +171,20 @@ def __refresh_token__():
             'refresh_token': refresh_token
         }
         req_opencart(url, 'PUT', data=body)
+        clear_cache('__get_token__-()')
     else:
-        raise Exception('Não foi possível dar refresh no token do Mercado Livre')
+        raise Exception('Não foi possível refresh no token do Mercado Livre')
 
 
 def req_mercado_livre(url, verb='GET', **kwargs):
     TOKEN = __get_token__().access_token
-    logger = kwargs['logger'] if 'logger' in kwargs\
-        else logging.getLogger(__name__)
-    retry = kwargs['retry'] if 'retry' in kwargs else 0
-    tempo_espera = kwargs['tempo_espera'] if 'tempo_espera' in kwargs\
-        else 15
-    data = kwargs['data'] if 'data' in kwargs else None
-    env = get_env('AMBIENTE')
-    headers = {'Authorization': TOKEN, 'content-type': 'application/json'}
-    logger.info('request Mercado Livre ' + verb + ': ' + url)
+
+    logger, retry, tempo_espera, data, env, headers =\
+        __params_req_ml__(url, verb, kwargs, TOKEN)
+
+    # request
     response = requests.request(verb, url, json=data, headers=headers)
-    logger.info('response Mercado Livre: ' + response.content)
+    logger.info(f'response Mercado Livre: {response.text}')
     if response.status_code == 401:
         __refresh_token__()
         return req_mercado_livre(url, verb=verb,
@@ -212,6 +210,18 @@ def req_mercado_livre(url, verb='GET', **kwargs):
     except ValueError as e:
         logger.error(e)
         raise MlException(response.text)
+
+def __params_req_ml__(url, verb, kwargs, TOKEN):
+    logger = kwargs['logger'] if 'logger' in kwargs\
+        else logging.getLogger(__name__)
+    retry = kwargs['retry'] if 'retry' in kwargs else 0
+    tempo_espera = kwargs['tempo_espera'] if 'tempo_espera' in kwargs\
+        else 15
+    data = kwargs['data'] if 'data' in kwargs else None
+    env = get_env('AMBIENTE')
+    headers = {'Authorization': TOKEN, 'content-type': 'application/json'}
+    logger.info('request Mercado Livre ' + verb + ': ' + url)
+    return logger,retry,tempo_espera,data,env,headers
 
 
 def convert_api_response_to_object(columns, registers):
