@@ -141,6 +141,9 @@ def req_skyhub(url, verb='GET', **kwargs):
 
 @cache
 def __get_token__():
+    ambiente = get_env('AMBIENTE')
+    if ambiente.lower() == 'test' or ambiente.lower() == 'teste':
+        return MercadoLivreToken('a', 'b')
     url_base = get_env('URL_OC_BASE')
     response = req_opencart(f'{url_base}/token/mercadolivre')
     if 'access_token' not in response:

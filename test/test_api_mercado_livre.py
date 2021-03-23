@@ -21,7 +21,7 @@ class TestApiMercadoLivre:
                            'secret')
         monkeypatch.setenv('MERCADOLIVRE_CLIENT_ID',
                            '1')
-        monkeypatch.setenv('AMBIENTE', 'test')
+        monkeypatch.setenv('AMBIENTE', 'dev')
         monkeypatch.setenv('URL_OC_BASE', URL_OC)
         monkeypatch.setenv('OPENCART_TOKEN', '123')
         yield
