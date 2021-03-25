@@ -2,7 +2,7 @@ from distutils.core import setup
 setup(
   name = 'libmp',
   packages = ['libmp'],
-  version = '1.1',
+  version = '1.2',
   license='MIT',
   description = 'LIBRARY FOR SUPPORT FUNCTIONS AND METHODS AT WORK FOR GROUP MULTIPECAS FROM BRAZIL',
   author = 'LUCAS GARCIA RIBEIRO',
