@@ -50,7 +50,7 @@ def req_opencart(url, verb='GET', **kwargs):
     headers = {'key': TOKEN, 'content-type': 'application/json'}
     response = requests.request(verb, url, json=data, headers=headers)
     if response.status_code not in (200, 404) and retry < 3:
-        logger.info('Erro chamada opencart: ' + response.content)
+        logger.info('Erro chamada opencart: ' + str(response.content))
         if env == 'produção':
             time.sleep(tempo_espera)
         retry = retry + 15
@@ -83,7 +83,7 @@ def req_tiny(url, verb='GET', **kwargs):
 
     logger.info('request Tiny ' + verb + ': ' + url)
     response = requests.request(verb, url)
-    logger.info('response Tiny: ' + response.content)
+    logger.info('response Tiny: ' + str(response.content))
     try:
         payload = response.json()
     except ValueError:
@@ -127,7 +127,7 @@ def req_skyhub(url, verb='GET', **kwargs):
     headers = {'X-Api-Key': TOKEN, 'X-User-Email': EMAIL,
                'content-type': 'application/json'}
     response = requests.request(verb, url, json=data, headers=headers)
-    logger.info('response Skyhub: ' + response.content)
+    logger.info('response Skyhub: ' + str(response.content))
     if response.status_code == 204:
         return True
     elif response.status_code in [500, 400] and retry < 3:
@@ -195,7 +195,7 @@ def req_mercado_livre(url, verb='GET', **kwargs):
                                  retry=retry,
                                  tempo_espera=tempo_espera)
     if response.status_code not in (200, 404, 400) and retry < 3:
-        logger.info('Erro chamada Mercado Livre: ' + response.content)
+        logger.info('Erro chamada Mercado Livre: ' + str(response.content))
         if env == 'produção':
             time.sleep(tempo_espera)
         retry = retry + 15
