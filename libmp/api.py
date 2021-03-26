@@ -188,7 +188,7 @@ def req_mercado_livre(url, verb='GET', **kwargs):
     # request
     response = requests.request(verb, url, json=data, headers=headers)
     logger.info(f'response Mercado Livre: {response.text}')
-    if response.status_code == 401:
+    if response.status_code in [401, 403]:
         __refresh_token__()
         return req_mercado_livre(url, verb=verb,
                                  data=data,
